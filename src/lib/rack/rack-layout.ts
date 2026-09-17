@@ -1,4 +1,13 @@
+/** Real-world dimensions for a standard 19-inch equipment mounting plane. */
+export const RACK_UNIT_HEIGHT_MM = 44.45;
+export const RACK_MOUNTING_WIDTH_INCHES = 19;
+export const RACK_MOUNTING_WIDTH_MM = RACK_MOUNTING_WIDTH_INCHES * 25.4;
+
+/** Display scale: one rack unit is drawn at 30 CSS pixels high. */
 export const UNIT_HEIGHT = 30;
+export const RACK_MOUNTING_WIDTH = Math.round(
+	RACK_MOUNTING_WIDTH_MM * (UNIT_HEIGHT / RACK_UNIT_HEIGHT_MM)
+);
 
 export type Rack = {
 	id: string;

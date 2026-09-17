@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type KonvaNamespace from 'konva';
+	import RackIllustration from '$lib/rack/RackIllustration.svelte';
+	import { RACK_MOUNTING_WIDTH, UNIT_HEIGHT } from '$lib/rack/rack-layout';
 
 	let canvasHost: HTMLDivElement;
 	let position = $state({ x: 0, y: 0 });
 	let isDragging = $state(false);
+	const playgroundRackUnits = 14;
+	const stageHeight = playgroundRackUnits * UNIT_HEIGHT;
+	const rackUnits = Array.from({ length: playgroundRackUnits }, (_, index) => playgroundRackUnits - index);
 
 	onMount(() => {
 		let disposed = false;
@@ -18,51 +23,14 @@
 
 			const serverWidth = 600;
 			const serverHeight = 116;
-			const stageHeight = 520;
-
 			stage = new Konva.Stage({
 				container: canvasHost,
-				width: Math.max(canvasHost.clientWidth, 280),
+				width: canvasHost.clientWidth,
 				height: stageHeight
 			});
 
-			const backgroundLayer = new Konva.Layer({ listening: false });
 			const serverLayer = new Konva.Layer();
-			stage.add(backgroundLayer, serverLayer);
-
-			function drawBackground() {
-				if (!stage) return;
-				backgroundLayer.destroyChildren();
-				backgroundLayer.add(
-					new Konva.Rect({
-						x: 0,
-						y: 0,
-						width: stage.width(),
-						height: stage.height(),
-						fill: '#f7fbfd'
-					})
-				);
-
-				for (let x = 0; x < stage.width(); x += 28) {
-					backgroundLayer.add(
-						new Konva.Line({
-							points: [x, 0, x, stage.height()],
-							stroke: '#e4eef3',
-							strokeWidth: 1
-						})
-					);
-				}
-
-				for (let y = 0; y < stage.height(); y += 28) {
-					backgroundLayer.add(
-						new Konva.Line({
-							points: [0, y, stage.width(), y],
-							stroke: '#e4eef3',
-							strokeWidth: 1
-						})
-					);
-				}
-			}
+			stage.add(serverLayer);
 
 			server = new Konva.Group({ draggable: true });
 
@@ -272,12 +240,10 @@
 
 			function resizeCanvas() {
 				if (!stage) return;
-				stage.width(Math.max(canvasHost.clientWidth, 280));
-				drawBackground();
+				stage.width(canvasHost.clientWidth);
 				fitServerToStage();
 			}
 
-			drawBackground();
 			fitServerToStage();
 			resizeObserver = new ResizeObserver(resizeCanvas);
 			resizeObserver.observe(canvasHost);
@@ -316,7 +282,15 @@
 			</div>
 			<code>x: {position.x} · y: {position.y}</code>
 		</div>
-		<div class="canvas-host" bind:this={canvasHost} aria-label="Draggable server canvas"></div>
+		<RackIllustration
+			units={rackUnits}
+			mountingHeight={stageHeight}
+			mountingWidth={RACK_MOUNTING_WIDTH}
+			stageMinHeight={stageHeight + 88}
+			ariaLabel="14U rack mounting area with a draggable server"
+		>
+			<div class="canvas-host" bind:this={canvasHost} aria-label="Draggable server canvas"></div>
+		</RackIllustration>
 		<footer>
 			<span><kbd>Drag</kbd> Move server</span>
 			<span>Konva.Group + Konva.Rect</span>
@@ -376,6 +350,8 @@
 	}
 
 	.canvas-card {
+		width: fit-content;
+		margin: 0 auto;
 		overflow: hidden;
 		border: 1px solid #cfdee6;
 		border-radius: 14px;
@@ -425,8 +401,9 @@
 	}
 
 	.canvas-host {
-		height: 520px;
-		overflow: hidden;
+		position: absolute;
+		inset: 0;
+		z-index: 4;
 	}
 
 	.canvas-host :global(canvas) {

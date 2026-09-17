@@ -2,11 +2,10 @@
 	import { deviceDefinitions } from '$lib/devices/device-data';
 	import type { RackState } from '$lib/stores/rack-state.svelte';
 	import RackDevice from './RackDevice.svelte';
-	import RackUnit from './RackUnit.svelte';
-	import { UNIT_HEIGHT, rackUToY, yToRackU } from './rack-layout';
+	import RackIllustration from './RackIllustration.svelte';
+	import { RACK_MOUNTING_WIDTH, UNIT_HEIGHT, rackUToY, yToRackU } from './rack-layout';
 
 	let { state }: { state: RackState } = $props();
-	let mountingArea: HTMLDivElement;
 
 	let units = $derived(
 		Array.from({ length: state.rack.units }, (_, index) => state.rack.units - index)
@@ -22,6 +21,7 @@
 		if (!state.draggedDefinition || !state.draggedDevice) return;
 		if (event.dataTransfer)
 			event.dataTransfer.dropEffect = state.draggedDevice.instanceId ? 'move' : 'copy';
+		const mountingArea = event.currentTarget as HTMLDivElement;
 		const bounds = mountingArea.getBoundingClientRect();
 		const proposedTop = event.clientY - bounds.top - state.draggedDevice.grabOffsetPx;
 		state.previewAt(yToRackU(proposedTop, state.draggedDefinition.heightU, state.rack.units));
@@ -57,27 +57,20 @@
 		</div>
 	</div>
 
-	<div class="rack-stage">
-		<div class="rack-shell">
-			<div class="frame-top"><span></span><span></span><span></span></div>
-			<div
-				class:drag-active={state.draggedDevice !== null}
-				class="mounting-area"
-				role="group"
-				aria-label={`${state.rack.name} mounting area, ${state.rack.units} rack units`}
-				style:height={`${state.rack.units * UNIT_HEIGHT}px`}
-				bind:this={mountingArea}
-				ondragover={updatePreview}
-				ondragleave={(event) => {
-					if (!mountingArea.contains(event.relatedTarget as Node)) state.clearPreview();
-				}}
-				ondrop={drop}
-			>
-				{#each units as unit}
-					<RackUnit {unit} />
-				{/each}
-
-				{#each state.placedDevices as placed (placed.instanceId)}
+	<RackIllustration
+		{units}
+		mountingHeight={state.rack.units * UNIT_HEIGHT}
+		mountingWidth={RACK_MOUNTING_WIDTH}
+		ariaLabel={`${state.rack.name} mounting area, ${state.rack.units} rack units`}
+		dragActive={state.draggedDevice !== null}
+		ondragover={updatePreview}
+		ondragleave={(event) => {
+			const mountingArea = event.currentTarget as HTMLDivElement;
+			if (!mountingArea.contains(event.relatedTarget as Node)) state.clearPreview();
+		}}
+		ondrop={drop}
+	>
+			{#each state.placedDevices as placed (placed.instanceId)}
 					{@const definition = deviceDefinitions.find(
 						(device) => device.id === placed.deviceDefinitionId
 					)}
@@ -106,8 +99,5 @@
 						<strong>U{state.candidateU}</strong>
 					</div>
 				{/if}
-			</div>
-			<div class="frame-bottom"></div>
-		</div>
-	</div>
+	</RackIllustration>
 </section>

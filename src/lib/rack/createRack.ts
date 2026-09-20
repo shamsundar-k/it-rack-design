@@ -114,8 +114,8 @@ export function createRack(
 					cornerRadius: mmToPx(2),
 					fillLinearGradientStartPoint: { x: 0, y: 0 },
 					fillLinearGradientEndPoint: { x: railWidth, y: 0 },
-					fillLinearGradientColorStops: [0, '#06486f', 0.5, '#2587ad', 1, '#06486f'],
-					stroke: '#6db1ca',
+					fillLinearGradientColorStops: [0, '#26323f', 0.5, '#657887', 1, '#26323f'],
+					stroke: '#94a5b3',
 					strokeWidth: 1
 				})
 			);

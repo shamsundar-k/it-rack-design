@@ -7,173 +7,214 @@ export function createServerArtwork(
 	name?: string
 ) {
 	const width = MOUNTING_WIDTH_PX;
-	const serverHeight = rackUnitsToPx(rackUnits);
-	const layout = { diskRows: Math.min(4, Math.max(1, Math.round(rackUnits))) };
-	const driveHeight = 24;
-	const driveRowGap = 7;
-	const driveAreaHeight = layout.diskRows * driveHeight + (layout.diskRows - 1) * driveRowGap;
-	const labelY = serverHeight - 14;
-	// Reserve a dedicated name strip below the bays, including on a 1U chassis.
-	const driveStartY = 12 + Math.max(0, (labelY - 6 - 12 - driveAreaHeight) / 2);
+	const height = rackUnitsToPx(rackUnits);
 	const server = new Konva.Group({ listening: false });
-	server.add(
+	// Artwork retains the standalone component's 4px top inset.
+	const face = new Konva.Group({ y: 4 });
+	server.add(face);
+	face.add(
 		new Konva.Rect({
-			x: 0,
-			y: 4,
 			width,
-			height: serverHeight,
-			cornerRadius: 10,
+			height,
+			cornerRadius: 4,
 			fillLinearGradientStartPoint: { x: 0, y: 0 },
-			fillLinearGradientEndPoint: { x: 0, y: serverHeight },
-			fillLinearGradientColorStops: [0, '#177fac', 0.5, '#086a9b', 1, '#05547f'],
-			stroke: '#06486f',
-			strokeWidth: 2,
-			shadowColor: '#245f7a',
-			shadowBlur: 20,
-			shadowOffsetY: 10,
-			shadowOpacity: 0.3
-		}),
-		new Konva.Rect({
-			x: 18,
-			y: 18,
-			width: 104,
-			height: serverHeight - 30,
-			cornerRadius: 7,
-			fill: '#07557f',
-			stroke: '#3092b6',
+			fillLinearGradientEndPoint: { x: 0, y: height },
+			fillLinearGradientColorStops: [
+				0,
+				'#83909e',
+				0.05,
+				'#566371',
+				0.45,
+				'#35424f',
+				0.95,
+				'#26323f',
+				1,
+				'#192430'
+			],
+			stroke: '#93a4b4',
 			strokeWidth: 1
 		})
 	);
-
-	const leftHandle = new Konva.Rect({
-		x: -22,
-		y: 13,
-		width: 24,
-		height: serverHeight - 20,
-		cornerRadius: [7, 2, 2, 7],
-		fill: '#0a5b85',
-		stroke: '#064264',
-		strokeWidth: 2
-	});
-	server.add(leftHandle, leftHandle.clone({ x: width - 2, cornerRadius: [2, 7, 7, 2] }));
-
-	for (const x of [-10, width + 10]) {
-		server.add(
-			new Konva.Rect({
-				x: x - 4,
-				y: serverHeight / 2 - 17,
-				width: 8,
-				height: 34,
-				cornerRadius: 4,
-				fill: '#063d5c'
-			}),
-			new Konva.Circle({ x, y: 18, radius: 3, fill: '#b7d5df', stroke: '#053650' }),
-			new Konva.Circle({
-				x,
-				y: serverHeight - 14,
-				radius: 3,
-				fill: '#b7d5df',
-				stroke: '#053650'
+	for (let y = 4; y < height - 3; y += 3) {
+		face.add(
+			new Konva.Line({
+				points: [5, y, width - 5, y],
+				stroke: '#cbd5e1',
+				opacity: 0.035,
+				strokeWidth: 1
 			})
 		);
 	}
-
-	for (const [index, color] of ['#4be095', '#f7c948', '#57b8ff'].entries()) {
-		server.add(
-			new Konva.Circle({
-				x: 38 + index * 25,
-				y: 24,
-				radius: 5,
-				fill: color,
-				shadowColor: color,
-				shadowBlur: 8,
-				shadowOpacity: 0.5
-			})
-		);
-	}
-
-	const serverLabel = new Konva.Text({
-		x: 145,
-		y: labelY,
-		text: name ?? `${rackUnits}U SERVER`,
-		width: 422,
-		height: 14,
-		align: 'center',
-		ellipsis: true,
-		wrap: 'none',
-		fontFamily: 'Inter, sans-serif',
-		fontSize: 11,
-		fontStyle: 'bold',
-		letterSpacing: 0.2,
-		fill: '#a9d9e8'
-	});
-	server.add(
-		serverLabel,
-		new Konva.Circle({
-			x: 70,
-			y: serverHeight - 30,
-			radius: 11,
-			fill: '#06466c',
-			stroke: '#67abc3',
+	const panelHeight = height - 12;
+	face.add(
+		new Konva.Rect({
+			x: 10,
+			y: 6,
+			width: 98,
+			height: panelHeight,
+			cornerRadius: 3,
+			fill: '#111c27',
+			stroke: '#627281',
 			strokeWidth: 1
-		}),
-		new Konva.Circle({ x: 70, y: serverHeight - 30, radius: 3, fill: '#d9f5ff' })
+		})
 	);
-
-	for (let row = 0; row < layout.diskRows; row += 1) {
-		for (let column = 0; column < 4; column += 1) {
-			const x = 145 + column * 108;
-			const y = driveStartY + row * (driveHeight + driveRowGap);
-			server.add(
+	face.add(
+		new Konva.Rect({
+			x: 15,
+			y: 11,
+			width: 3,
+			height: panelHeight - 10,
+			cornerRadius: 1,
+			fill: '#45b8cd'
+		})
+	);
+	face.add(
+		new Konva.Text({
+			x: 26,
+			y: 13,
+			text: `${rackUnits}U`,
+			fontSize: 10,
+			fontStyle: 'bold',
+			fontFamily: 'Inter, sans-serif',
+			fill: '#c7d6e1'
+		})
+	);
+	// Power and indicator lights remain distinct even on the compact 1U face.
+	face.add(
+		new Konva.Circle({
+			x: 87,
+			y: 21,
+			radius: 7,
+			fill: '#243746',
+			stroke: '#7392a6',
+			strokeWidth: 1
+		})
+	);
+	face.add(
+		new Konva.Arc({
+			x: 87,
+			y: 21,
+			innerRadius: 3,
+			outerRadius: 4,
+			angle: 280,
+			rotation: -50,
+			fill: '#82dfbd'
+		})
+	);
+	face.add(new Konva.Line({ points: [87, 16, 87, 20], stroke: '#82dfbd', strokeWidth: 1.5 }));
+	for (const [i, color] of ['#66d4a5', '#56b4d3', '#495664'].entries()) {
+		face.add(new Konva.Circle({ x: 29 + i * 13, y: 34, radius: 2, fill: color }));
+	}
+	if (rackUnits > 1) {
+		for (let y = 49; y < height - 17; y += 5) {
+			for (let x = 27; x < 92; x += 6)
+				face.add(new Konva.Rect({ x, y, width: 3, height: 2, fill: '#425463', cornerRadius: 0.5 }));
+		}
+	}
+	const rows = Math.min(4, Math.max(1, Math.round(rackUnits)));
+	const bayX = 120;
+	const bayWidth = 112;
+	const gap = 5;
+	const labelHeight = 17;
+	const bayHeight = Math.min(30, (height - labelHeight - 15 - (rows - 1) * gap) / rows);
+	const bayAreaHeight = rows * bayHeight + (rows - 1) * gap;
+	const startY = 7 + Math.max(0, (height - labelHeight - 14 - bayAreaHeight) / 2);
+	for (let row = 0; row < rows; row++) {
+		for (let column = 0; column < 4; column++) {
+			const x = bayX + column * (bayWidth + gap);
+			const y = startY + row * (bayHeight + gap);
+			face.add(
 				new Konva.Rect({
 					x,
 					y,
-					width: 98,
-					height: driveHeight,
-					cornerRadius: 4,
+					width: bayWidth,
+					height: bayHeight,
+					cornerRadius: 2,
+					fill: '#0b121a',
+					stroke: '#73818c',
+					strokeWidth: 0.7
+				})
+			);
+			face.add(
+				new Konva.Rect({
+					x: x + 4,
+					y: y + 3,
+					width: bayWidth - 22,
+					height: bayHeight - 6,
+					cornerRadius: 1,
 					fillLinearGradientStartPoint: { x: 0, y: 0 },
-					fillLinearGradientEndPoint: { x: 0, y: driveHeight },
-					fillLinearGradientColorStops: [0, '#193b50', 1, '#0b293a'],
-					stroke: '#4b9ab7',
+					fillLinearGradientEndPoint: { x: 0, y: bayHeight },
+					fillLinearGradientColorStops: [0, '#344350', 1, '#1d2a36'],
+					stroke: '#425665',
+					strokeWidth: 0.5
+				})
+			);
+			for (let vent = 0; vent < 10; vent++) {
+				face.add(
+					new Konva.Line({
+						points: [x + 10 + vent * 7, y + 6, x + 10 + vent * 7, y + bayHeight - 6],
+						stroke: '#0d1822',
+						strokeWidth: 2
+					})
+				);
+			}
+			face.add(
+				new Konva.Rect({
+					x: x + bayWidth - 16,
+					y: y + 3,
+					width: 11,
+					height: bayHeight - 6,
+					cornerRadius: 1,
+					fill: '#516372'
+				})
+			);
+			face.add(
+				new Konva.Line({
+					points: [x + bayWidth - 12, y + 6, x + bayWidth - 12, y + bayHeight - 6],
+					stroke: '#8797a4',
 					strokeWidth: 1
-				}),
-				new Konva.Rect({
-					x: x + 8,
-					y: y + 4,
-					width: 80,
-					height: 3,
-					cornerRadius: 2,
-					fill: '#4a7183'
-				}),
-				new Konva.Rect({
-					x: x + 9,
-					y: y + 15,
-					width: 61,
-					height: 4,
-					cornerRadius: 2,
-					fill: '#071c28'
-				}),
+				})
+			);
+			face.add(
 				new Konva.Circle({
-					x: x + 87,
-					y: y + 17,
-					radius: 2.5,
-					fill: (row + column) % 3 === 0 ? '#55e69a' : '#2e7994'
+					x: x + bayWidth - 10.5,
+					y: y + bayHeight - 6,
+					radius: 1.5,
+					fill: (row + column) % 3 === 0 ? '#7bddb1' : '#315c52'
 				})
 			);
 		}
 	}
-
-	server.add(
+	// Full-width nameplate sits below the disks, outside the status panel.
+	face.add(
 		new Konva.Rect({
-			x: 12,
-			y: 9,
-			width: width - 24,
-			height: 2,
-			cornerRadius: 1,
-			fill: '#65b9d0',
-			opacity: 0.55
+			x: bayX,
+			y: height - labelHeight,
+			width: 463,
+			height: 13,
+			cornerRadius: 2,
+			fill: '#17232f',
+			stroke: '#5a6c7b',
+			strokeWidth: 0.5
 		})
 	);
-
+	face.add(
+		new Konva.Text({
+			x: bayX + 8,
+			y: height - labelHeight + 1,
+			width: 447,
+			height: 12,
+			text: name ?? `${rackUnits}U SERVER`,
+			fontFamily: 'Inter, sans-serif',
+			fontSize: 10,
+			fontStyle: 'bold',
+			letterSpacing: 0.3,
+			align: 'center',
+			verticalAlign: 'middle',
+			wrap: 'none',
+			ellipsis: true,
+			fill: '#e1eaf0'
+		})
+	);
 	return server;
 }

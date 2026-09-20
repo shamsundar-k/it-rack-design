@@ -40,3 +40,20 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Rack workspace
+
+The workspace uses the original physical conversion: 482.6 mm = 600 logical pixels,
+with 1U = 44.45 mm. `rackGeometry.ts` is shared by standalone servers and rack
+rendering. View zoom is a separate Konva stage transform.
+
+Equipment state contains `startU` (lowest occupied unit) and `sizeU`; positions are
+derived inside each rack group. The page renders only the rack canvas. Drag equipment
+to snap to free units; invalid moves revert. Drag the background to pan and use the
+wheel to zoom. The canvas fits on initial load and viewport resize.
+State is currently in memory and resets on reload. Rails reuse a 1U SVG tile with
+three evenly spaced visual holes. Equipment ears and fasteners align to the same
+hole spacing and move with the equipment.
+
+Run `pnpm test` for geometry and occupancy tests (Node 22.6+), `pnpm check` for
+Svelte/TypeScript validation, and `pnpm build` for the production build.

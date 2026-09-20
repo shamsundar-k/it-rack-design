@@ -9,12 +9,14 @@
 		racks,
 		selectedId,
 		onSelect,
-		onMove
+		onMove,
+		onContextMenu
 	}: {
 		racks: RackModel[];
 		selectedId?: string;
 		onSelect: (rackId: string, id: string) => void;
 		onMove: (rackId: string, id: string, u: number) => void;
+		onContextMenu: (rackId: string, id: string, event: MouseEvent) => void;
 	} = $props();
 	let host: HTMLDivElement;
 	let status = $state('Drag equipment to move it. Drag the background to pan.');
@@ -61,6 +63,7 @@
 								railImage: image,
 								selectedId,
 								onSelect: (id) => onSelect(rack.id, id),
+								onContextMenu: (id, event) => onContextMenu(rack.id, id, event),
 								onMove: (id, u) => onMove(rack.id, id, u),
 								onStatus: (text) => {
 									status = text;

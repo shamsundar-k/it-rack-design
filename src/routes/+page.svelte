@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import RackCanvas from '$lib/rack/RackCanvas.svelte';
 	import { moveDevice, type RackModel } from '$lib/rack/rackModel';
 	let racks: RackModel[] = $state([
@@ -13,6 +14,28 @@
 		}
 	]);
 	let selectedId = $state<string>();
+	let editing = $state(false);
+	let menu = $state<{ x: number; y: number }>();
+	let menuElement = $state<HTMLDivElement>();
+	let renameButton = $state<HTMLButtonElement>();
+	let nameInput = $state<HTMLInputElement>();
+	async function openMenu(_rackId: string, id: string, event: MouseEvent) {
+		selectedId = id;
+		editing = false;
+		menu = {
+			x: Math.max(8, Math.min(event.clientX, window.innerWidth - 208)),
+			y: Math.max(8, Math.min(event.clientY, window.innerHeight - 64))
+		};
+		await tick();
+		renameButton?.focus();
+	}
+	async function editName() {
+		menu = undefined;
+		editing = true;
+		await tick();
+		nameInput?.focus();
+		nameInput?.select();
+	}
 	let draftName = $state('');
 	let nameError = $state('');
 	let selectedDevice = $derived(
@@ -35,12 +58,15 @@
 				device.id === selectedId ? { ...device, name } : device
 			)
 		}));
+		editing = false;
 		selectedId = undefined;
 	}
 
 	function move(rackId: string, id: string, startU: number) {
 		racks = racks.map((rack) => (rack.id === rackId ? moveDevice(rack, id, startU) : rack));
 		selectedId = id;
+		editing = false;
+		menu = undefined;
 	}
 </script>
 
@@ -48,6 +74,20 @@
 	<title>Rack</title>
 	<meta name="description" content="Physically scaled rack rails and mounted equipment." />
 </svelte:head>
+<svelte:window
+	onpointerdown={(event) => {
+		if (menu && !menuElement?.contains(event.target as Node)) menu = undefined;
+	}}
+	onkeydown={(event) => {
+		if (event.key === 'Escape') {
+			menu = undefined;
+			editing = false;
+		}
+	}}
+	onresize={() => {
+		menu = undefined;
+	}}
+/>
 <main>
 	<RackCanvas
 		{racks}
@@ -56,8 +96,21 @@
 			selectedId = id;
 		}}
 		onMove={move}
+		onContextMenu={openMenu}
 	/>
-	{#if selectedDevice}
+	{#if menu}
+		<div
+			class="context-menu"
+			bind:this={menuElement}
+			role="menu"
+			aria-label="Server actions"
+			style:left={`${menu.x}px`}
+			style:top={`${menu.y}px`}
+		>
+			<button bind:this={renameButton} role="menuitem" onclick={editName}>Rename server</button>
+		</div>
+	{/if}
+	{#if editing && selectedDevice}
 		<form class="name-editor" onsubmit={rename}>
 			<label for="server-name"
 				>Server name <span>{selectedDevice.sizeU}U · U{selectedDevice.startU}</span></label
@@ -65,6 +118,7 @@
 			<div class="fields">
 				<input
 					id="server-name"
+					bind:this={nameInput}
 					bind:value={draftName}
 					maxlength="60"
 					required
@@ -75,6 +129,7 @@
 				<button
 					type="button"
 					onclick={() => {
+						editing = false;
 						selectedId = undefined;
 					}}>Cancel</button
 				>
@@ -85,6 +140,26 @@
 </main>
 
 <style>
+	.context-menu {
+		position: fixed;
+		z-index: 20;
+		width: 200px;
+		padding: 6px;
+		border: 1px solid #425875;
+		border-radius: 8px;
+		background: #172338;
+		box-shadow: 0 8px 28px #0008;
+	}
+	.context-menu button {
+		width: 100%;
+		text-align: left;
+		border: 0;
+		background: transparent;
+	}
+	.context-menu button:hover {
+		background: #223e59;
+	}
+
 	.name-editor {
 		position: fixed;
 		bottom: 20px;

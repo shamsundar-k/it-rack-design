@@ -22,6 +22,7 @@ export function createRack(
 		railImage: HTMLImageElement;
 		selectedId?: string;
 		onSelect: (id: string) => void;
+		onContextMenu: (id: string, event: MouseEvent) => void;
 		onMove: (id: string, startU: number) => void;
 		onStatus: (message: string) => void;
 	}
@@ -158,7 +159,13 @@ export function createRack(
 			if (!node.isDragging())
 				outline.stroke(device.id === options.selectedId ? '#38bdf8' : 'transparent');
 		});
+		node.on('contextmenu', (event) => {
+			event.evt.preventDefault();
+			event.cancelBubble = true;
+			options.onContextMenu(device.id, event.evt);
+		});
 		node.on('click tap', (event) => {
+			if ('button' in event.evt && event.evt.button !== 0) return;
 			event.cancelBubble = true;
 			onSelect(device.id);
 		});

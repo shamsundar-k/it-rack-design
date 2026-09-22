@@ -8,6 +8,8 @@ export interface RackModel {
 	id: string;
 	name: string;
 	units: number;
+	x?: number;
+	y?: number;
 	devices: RackDevice[];
 }
 export function canPlaceDevice(rack: RackModel, device: RackDevice, startU: number): boolean {
@@ -32,4 +34,9 @@ export function moveDevice(rack: RackModel, id: string, startU: number): RackMod
 		...rack,
 		devices: rack.devices.map((item) => (item.id === id ? { ...item, startU } : item))
 	};
+}
+
+export function moveRack(rack: RackModel, x: number, y: number): RackModel {
+	if (!Number.isFinite(x) || !Number.isFinite(y)) return rack;
+	return { ...rack, x, y };
 }

@@ -52,8 +52,9 @@ derived inside each rack group. The page renders only the rack canvas. Drag equi
 to snap to free units; invalid moves revert. Drag the background to pan and use the
 wheel to zoom. The canvas fits on initial load and viewport resize.
 State is currently in memory and resets on reload. Rails reuse a 1U SVG tile with
-three evenly spaced visual holes. Equipment ears and fasteners align to the same
-hole spacing and move with the equipment.
+three EIA-310-spaced visual holes (15.875 mm, 15.875 mm, then 12.7 mm to the next
+unit). Equipment ears and fasteners align to the same hole centers and move with
+the equipment.
 
 Run `pnpm test` for geometry and occupancy tests (Node 22.6+), `pnpm check` for
 Svelte/TypeScript validation, and `pnpm build` for the production build.

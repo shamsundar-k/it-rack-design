@@ -3,12 +3,27 @@ import { test } from 'node:test';
 import {
 	mmToPx,
 	rackUnitsToPx,
+	EIA_RAIL_HOLE_OFFSETS_MM,
+	railHoleYs,
+	mountingBoltYs,
 	uToY,
 	deviceY,
 	yToStartU,
 	deviceBounds
 } from '../src/lib/rack/rackGeometry.ts';
-import { canPlaceDevice, moveDevice } from '../src/lib/rack/rackModel.ts';
+import { canPlaceDevice, moveDevice, moveRack } from '../src/lib/rack/rackModel.ts';
+import { rackCabinetBounds, rackCabinetsOverlap } from '../src/lib/rack/rackPlacement.ts';
+
+test('rail holes follow the repeating EIA-310 vertical spacing', () => {
+	assert.deepEqual(EIA_RAIL_HOLE_OFFSETS_MM, [6.35, 22.225, 38.1]);
+	const centers = [...railHoleYs, rackUnitsToPx(1) + railHoleYs[0]];
+	const gapsMm = centers.slice(1).map((center, index) => (center - centers[index]) / (600 / 482.6));
+	for (const [index, expected] of [15.875, 15.875, 12.7].entries())
+		assert.ok(Math.abs(gapsMm[index] - expected) < 1e-12);
+	const boltYs = mountingBoltYs(1);
+	for (const index of [0, 1])
+		assert.ok(Math.abs(boltYs[index] - [railHoleYs[0], railHoleYs[2]][index]) < 1e-12);
+});
 
 test('original physical scale and bottom-up U coordinates', () => {
 	assert.equal(mmToPx(482.6), 600);
@@ -47,4 +62,20 @@ test('occupancy rejects overlap and overflow; moves remain immutable', () => {
 	assert.equal(moved.devices[0].startU, 2);
 	assert.equal(rack.devices[0].startU, 4);
 	assert.equal('y' in moved.devices[0], false);
+});
+
+test('rack positions move immutably and reject invalid coordinates', () => {
+	const rack = { id: 'r', name: 'R', units: 9, x: 10, y: 20, devices: [] };
+	const moved = moveRack(rack, 120, 80);
+	assert.deepEqual({ x: moved.x, y: moved.y }, { x: 120, y: 80 });
+	assert.deepEqual({ x: rack.x, y: rack.y }, { x: 10, y: 20 });
+	assert.equal(moveRack(rack, Number.NaN, 80), rack);
+});
+
+test('rack cabinet bounds prevent overlap but allow adjacent placement', () => {
+	const first = rackCabinetBounds(42, -120, 40);
+	const overlapping = rackCabinetBounds(15, 100, 200);
+	const adjacent = rackCabinetBounds(15, first.right + 200, 40);
+	assert.equal(rackCabinetsOverlap(first, overlapping), true);
+	assert.equal(rackCabinetsOverlap(first, adjacent), false);
 });

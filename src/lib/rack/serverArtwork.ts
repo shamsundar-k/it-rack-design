@@ -21,26 +21,30 @@ export function createServerArtwork(
 			fillLinearGradientEndPoint: { x: 0, y: height },
 			fillLinearGradientColorStops: [
 				0,
-				'#83909e',
+				'#ffffff',
 				0.05,
-				'#566371',
+				'#f8fafc',
 				0.45,
-				'#35424f',
+				'#eef2f6',
 				0.95,
-				'#26323f',
+				'#dce4ec',
 				1,
-				'#192430'
+				'#cbd5e1'
 			],
-			stroke: '#93a4b4',
-			strokeWidth: 1
+			stroke: '#94a3b8',
+			strokeWidth: 1.5,
+			shadowColor: '#475569',
+			shadowBlur: 5,
+			shadowOpacity: 0.22,
+			shadowOffsetY: 1
 		})
 	);
 	for (let y = 4; y < height - 3; y += 3) {
 		face.add(
 			new Konva.Line({
 				points: [5, y, width - 5, y],
-				stroke: '#cbd5e1',
-				opacity: 0.035,
+				stroke: '#64748b',
+				opacity: 0.04,
 				strokeWidth: 1
 			})
 		);
@@ -53,8 +57,8 @@ export function createServerArtwork(
 			width: 98,
 			height: panelHeight,
 			cornerRadius: 3,
-			fill: '#111c27',
-			stroke: '#627281',
+			fill: '#e7edf4',
+			stroke: '#a7b4c3',
 			strokeWidth: 1
 		})
 	);
@@ -65,7 +69,7 @@ export function createServerArtwork(
 			width: 3,
 			height: panelHeight - 10,
 			cornerRadius: 1,
-			fill: '#45b8cd'
+			fill: '#06b6d4'
 		})
 	);
 	face.add(
@@ -73,10 +77,10 @@ export function createServerArtwork(
 			x: 26,
 			y: 13,
 			text: `${rackUnits}U`,
-			fontSize: 10,
+			fontSize: 12,
 			fontStyle: 'bold',
 			fontFamily: 'Inter, sans-serif',
-			fill: '#c7d6e1'
+			fill: '#334155'
 		})
 	);
 	// Power and indicator lights remain distinct even on the compact 1U face.
@@ -85,8 +89,8 @@ export function createServerArtwork(
 			x: 87,
 			y: 21,
 			radius: 7,
-			fill: '#243746',
-			stroke: '#7392a6',
+			fill: '#f8fafc',
+			stroke: '#94a3b8',
 			strokeWidth: 1
 		})
 	);
@@ -98,17 +102,17 @@ export function createServerArtwork(
 			outerRadius: 4,
 			angle: 280,
 			rotation: -50,
-			fill: '#82dfbd'
+			fill: '#22c55e'
 		})
 	);
-	face.add(new Konva.Line({ points: [87, 16, 87, 20], stroke: '#82dfbd', strokeWidth: 1.5 }));
-	for (const [i, color] of ['#66d4a5', '#56b4d3', '#495664'].entries()) {
+	face.add(new Konva.Line({ points: [87, 16, 87, 20], stroke: '#22c55e', strokeWidth: 1.5 }));
+	for (const [i, color] of ['#22c55e', '#06b6d4', '#94a3b8'].entries()) {
 		face.add(new Konva.Circle({ x: 29 + i * 13, y: 34, radius: 2, fill: color }));
 	}
 	if (rackUnits > 1) {
 		for (let y = 49; y < height - 17; y += 5) {
 			for (let x = 27; x < 92; x += 6)
-				face.add(new Konva.Rect({ x, y, width: 3, height: 2, fill: '#425463', cornerRadius: 0.5 }));
+				face.add(new Konva.Rect({ x, y, width: 3, height: 2, fill: '#a8b5c3', cornerRadius: 0.5 }));
 		}
 	}
 	const rows = Math.min(4, Math.max(1, Math.round(rackUnits)));
@@ -130,8 +134,8 @@ export function createServerArtwork(
 					width: bayWidth,
 					height: bayHeight,
 					cornerRadius: 2,
-					fill: '#0b121a',
-					stroke: '#73818c',
+					fill: '#dce4ec',
+					stroke: '#94a3b8',
 					strokeWidth: 0.7
 				})
 			);
@@ -144,8 +148,8 @@ export function createServerArtwork(
 					cornerRadius: 1,
 					fillLinearGradientStartPoint: { x: 0, y: 0 },
 					fillLinearGradientEndPoint: { x: 0, y: bayHeight },
-					fillLinearGradientColorStops: [0, '#344350', 1, '#1d2a36'],
-					stroke: '#425665',
+					fillLinearGradientColorStops: [0, '#f8fafc', 1, '#d8e1ea'],
+					stroke: '#a7b4c3',
 					strokeWidth: 0.5
 				})
 			);
@@ -153,7 +157,7 @@ export function createServerArtwork(
 				face.add(
 					new Konva.Line({
 						points: [x + 10 + vent * 7, y + 6, x + 10 + vent * 7, y + bayHeight - 6],
-						stroke: '#0d1822',
+						stroke: '#94a3b8',
 						strokeWidth: 2
 					})
 				);
@@ -165,13 +169,13 @@ export function createServerArtwork(
 					width: 11,
 					height: bayHeight - 6,
 					cornerRadius: 1,
-					fill: '#516372'
+					fill: '#b7c2ce'
 				})
 			);
 			face.add(
 				new Konva.Line({
 					points: [x + bayWidth - 12, y + 6, x + bayWidth - 12, y + bayHeight - 6],
-					stroke: '#8797a4',
+					stroke: '#64748b',
 					strokeWidth: 1
 				})
 			);
@@ -180,7 +184,7 @@ export function createServerArtwork(
 					x: x + bayWidth - 10.5,
 					y: y + bayHeight - 6,
 					radius: 1.5,
-					fill: (row + column) % 3 === 0 ? '#7bddb1' : '#315c52'
+					fill: (row + column) % 3 === 0 ? '#22c55e' : '#94a3b8'
 				})
 			);
 		}
@@ -193,8 +197,8 @@ export function createServerArtwork(
 			width: 463,
 			height: 13,
 			cornerRadius: 2,
-			fill: '#17232f',
-			stroke: '#5a6c7b',
+			fill: '#ffffff',
+			stroke: '#a7b4c3',
 			strokeWidth: 0.5
 		})
 	);
@@ -206,14 +210,14 @@ export function createServerArtwork(
 			height: 12,
 			text: name ?? `${rackUnits}U SERVER`,
 			fontFamily: 'Inter, sans-serif',
-			fontSize: 10,
+			fontSize: 12,
 			fontStyle: 'bold',
 			letterSpacing: 0.3,
 			align: 'center',
 			verticalAlign: 'middle',
 			wrap: 'none',
 			ellipsis: true,
-			fill: '#e1eaf0'
+			fill: '#334155'
 		})
 	);
 	return server;

@@ -6,11 +6,13 @@ export const PX_PER_MM = MOUNTING_WIDTH_PX / MOUNTING_WIDTH_MM;
 export const mmToPx = (mm: number) => mm * PX_PER_MM;
 export const rackUnitsToPx = (units: number) => mmToPx(units * RACK_UNIT_MM);
 export const railWidth = mmToPx(20);
-// Three evenly spaced visual holes per U, including across SVG tile seams.
-export const railHolePitch = rackUnitsToPx(1) / 3;
+// EIA-310 hole centers within a 1U (44.45 mm / 1.75 in) repeating pattern.
+// This yields center-to-center gaps of 15.875, 15.875, then 12.7 mm.
+export const EIA_RAIL_HOLE_OFFSETS_MM = [6.35, 22.225, 38.1] as const;
+export const railHoleYs = EIA_RAIL_HOLE_OFFSETS_MM.map(mmToPx);
 export const mountingBoltYs = (sizeU: number) => [
-	railHolePitch / 2,
-	rackUnitsToPx(sizeU) - railHolePitch / 2
+	railHoleYs[0],
+	rackUnitsToPx(sizeU) - railHoleYs[0]
 ];
 export const rackWidth = MOUNTING_WIDTH_PX + 2 * railWidth;
 export const uToY = (u: number, units: number) => rackUnitsToPx(units - u);

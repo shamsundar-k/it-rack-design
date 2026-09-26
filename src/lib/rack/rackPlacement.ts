@@ -1,9 +1,10 @@
 import {
 	rackCabinetSideWidth,
-	RACK_BOTTOM_EXTENSION,
+	rackBottomExtension,
 	RACK_TOP_COVER_HEIGHT
 } from './rackCabinetArtwork.ts';
 import { rackUnitsToPx, rackWidth } from './rackGeometry.ts';
+import type { RackInstallation } from './rackModel.ts';
 
 export interface RackCabinetBounds {
 	left: number;
@@ -12,13 +13,18 @@ export interface RackCabinetBounds {
 	bottom: number;
 }
 
-export function rackCabinetBounds(units: number, x: number, y: number): RackCabinetBounds {
+export function rackCabinetBounds(
+	units: number,
+	x: number,
+	y: number,
+	installation: RackInstallation = 'floor-stand'
+): RackCabinetBounds {
 	const sideWidth = rackCabinetSideWidth(units);
 	return {
 		left: x - sideWidth,
 		top: y - RACK_TOP_COVER_HEIGHT,
 		right: x + rackWidth + sideWidth,
-		bottom: y + rackUnitsToPx(units) + RACK_BOTTOM_EXTENSION
+		bottom: y + rackUnitsToPx(units) + rackBottomExtension(installation)
 	};
 }
 

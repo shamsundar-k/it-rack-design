@@ -1,9 +1,14 @@
 import type KonvaNamespace from 'konva';
 import { mmToPx, rackWidth } from './rackGeometry.ts';
+import type { RackInstallation } from './rackModel.ts';
 
 export const RACK_BOTTOM_EXTENSION = mmToPx(32);
 export const RACK_TOP_COVER_HEIGHT = mmToPx(16);
 export const RACK_BOTTOM_COVER_HEIGHT = mmToPx(18);
+
+export function rackBottomExtension(installation: RackInstallation): number {
+	return installation === 'floor-stand' ? RACK_BOTTOM_EXTENSION : RACK_BOTTOM_COVER_HEIGHT;
+}
 
 export function rackCabinetSideWidth(units: number): number {
 	const labelScale = Math.max(1, Math.min(2.5, units / 12));
@@ -13,7 +18,8 @@ export function rackCabinetSideWidth(units: number): number {
 export function createRackCabinet(
 	Konva: typeof KonvaNamespace,
 	height: number,
-	sideWidth: number
+	sideWidth: number,
+	installation: RackInstallation
 ): KonvaNamespace.Group {
 	const cabinet = new Konva.Group({ listening: false });
 	const capHeight = RACK_TOP_COVER_HEIGHT;
@@ -21,16 +27,17 @@ export function createRackCabinet(
 	const footWidth = mmToPx(20);
 	const footHeight = mmToPx(10);
 
-	cabinet.add(
-		new Konva.Ellipse({
-			x: rackWidth / 2,
-			y: height + plinthHeight + footHeight + mmToPx(3),
-			radiusX: rackWidth / 2 + sideWidth,
-			radiusY: mmToPx(5),
-			fill: '#94a3b8',
-			opacity: 0.18
-		})
-	);
+	if (installation === 'floor-stand')
+		cabinet.add(
+			new Konva.Ellipse({
+				x: rackWidth / 2,
+				y: height + plinthHeight + footHeight + mmToPx(3),
+				radiusX: rackWidth / 2 + sideWidth,
+				radiusY: mmToPx(5),
+				fill: '#94a3b8',
+				opacity: 0.18
+			})
+		);
 
 	cabinet.add(
 		new Konva.Rect({
@@ -108,22 +115,23 @@ export function createRackCabinet(
 		})
 	);
 
-	for (const x of [-sideWidth + mmToPx(18), rackWidth + sideWidth - mmToPx(18) - footWidth]) {
-		cabinet.add(
-			new Konva.Rect({
-				x,
-				y: height + plinthHeight - 1,
-				width: footWidth,
-				height: footHeight,
-				cornerRadius: [0, 0, mmToPx(2), mmToPx(2)],
-				fillLinearGradientStartPoint: { x: 0, y: 0 },
-				fillLinearGradientEndPoint: { x: 0, y: footHeight },
-				fillLinearGradientColorStops: [0, '#aab7c5', 1, '#64748b'],
-				stroke: '#64748b',
-				strokeWidth: 1
-			})
-		);
-	}
+	if (installation === 'floor-stand')
+		for (const x of [-sideWidth + mmToPx(18), rackWidth + sideWidth - mmToPx(18) - footWidth]) {
+			cabinet.add(
+				new Konva.Rect({
+					x,
+					y: height + plinthHeight - 1,
+					width: footWidth,
+					height: footHeight,
+					cornerRadius: [0, 0, mmToPx(2), mmToPx(2)],
+					fillLinearGradientStartPoint: { x: 0, y: 0 },
+					fillLinearGradientEndPoint: { x: 0, y: footHeight },
+					fillLinearGradientColorStops: [0, '#aab7c5', 1, '#64748b'],
+					stroke: '#64748b',
+					strokeWidth: 1
+				})
+			);
+		}
 
 	return cabinet;
 }

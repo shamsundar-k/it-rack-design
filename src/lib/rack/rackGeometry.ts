@@ -27,3 +27,5 @@ export const deviceBounds = (startU: number, sizeU: number, units: number) => ({
 	height: rackUnitsToPx(sizeU)
 });
 export const rackPosition = (index: number) => ({ x: 64 + index * (rackWidth + 96), y: 64 });
+export const resizedRackTop = (currentTop: number, currentUnits: number, nextUnits: number) =>
+	currentTop + rackUnitsToPx(currentUnits - nextUnits);

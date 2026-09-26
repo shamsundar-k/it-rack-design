@@ -26,8 +26,10 @@ export function createRack(
 		x: number;
 		y: number;
 		railImage: HTMLImageElement;
+		serverFaceImages: ReadonlyMap<number, HTMLImageElement>;
 		selectedId?: string;
 		onSelect: (id: string) => void;
+		onRackSelect: () => void;
 		onContextMenu: (id: string, event: MouseEvent) => void;
 		onMove: (id: string, startU: number) => void;
 		onRackMove: (x: number, y: number) => void;
@@ -35,7 +37,7 @@ export function createRack(
 		onStatus: (message: string) => void;
 	}
 ) {
-	const { rack, railImage, onSelect, onMove, onStatus } = options;
+	const { rack, railImage, serverFaceImages, onSelect, onMove, onStatus } = options;
 	const group = new Konva.Group({
 		x: options.x,
 		y: options.y,
@@ -83,7 +85,18 @@ export function createRack(
 			fill: '#344054'
 		})
 	);
-	group.add(createRackCabinet(Konva, height, cabinetSideWidth));
+	group.add(createRackCabinet(Konva, height, cabinetSideWidth, rack.installation));
+	group.add(
+		new Konva.Rect({
+			x: -cabinetSideWidth,
+			y: -RACK_TOP_COVER_HEIGHT,
+			width: rackWidth + cabinetSideWidth * 2,
+			height: height + RACK_TOP_COVER_HEIGHT + RACK_BOTTOM_COVER_HEIGHT,
+			stroke: rack.id === options.selectedId ? '#2563eb' : 'transparent',
+			strokeWidth: 3,
+			listening: false
+		})
+	);
 	const shellHandles = [
 		new Konva.Rect({
 			x: -cabinetSideWidth,
@@ -123,10 +136,16 @@ export function createRack(
 		});
 		handle.on('mousedown touchstart', (event) => {
 			event.cancelBubble = true;
+			options.onRackSelect();
 			group.draggable(true);
 			group.startDrag(event);
 			const container = group.getStage()?.container();
 			if (container) container.style.cursor = 'grabbing';
+		});
+		handle.on('click tap', (event) => {
+			event.cancelBubble = true;
+			options.onRackSelect();
+			onStatus(`${rack.name} selected.`);
 		});
 	}
 	group.add(...shellHandles);
@@ -211,6 +230,7 @@ export function createRack(
 		const art = createServerArtwork(
 			Konva,
 			device.sizeU,
+			serverFaceImages.get(device.sizeU)!,
 			useLargeServerLabel ? undefined : device.name
 		);
 		art.y(-4);

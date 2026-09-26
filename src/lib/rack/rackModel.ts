@@ -3,14 +3,36 @@ export interface RackDevice {
 	name: string;
 	startU: number;
 	sizeU: number;
+	category?: 'server' | 'switch' | 'storage';
 }
+export type RackInstallation = 'wall-mount' | 'floor-stand';
+
 export interface RackModel {
 	id: string;
 	name: string;
 	units: number;
+	installation: RackInstallation;
 	x?: number;
 	y?: number;
 	devices: RackDevice[];
+}
+
+export const MAX_RACK_UNITS = 52;
+
+export function highestOccupiedUnit(rack: RackModel): number {
+	return rack.devices.reduce(
+		(highest, device) => Math.max(highest, device.startU + device.sizeU - 1),
+		0
+	);
+}
+
+export function canResizeRack(rack: RackModel, units: number): boolean {
+	return (
+		Number.isInteger(units) &&
+		units > 0 &&
+		units <= MAX_RACK_UNITS &&
+		highestOccupiedUnit(rack) <= units
+	);
 }
 export function canPlaceDevice(rack: RackModel, device: RackDevice, startU: number): boolean {
 	return (

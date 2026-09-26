@@ -1,10 +1,48 @@
 <script lang="ts">
-	import type { RackDevice } from '$lib/rack/rackModel';
+	import {
+		MAX_RACK_UNITS,
+		type RackDevice,
+		type RackInstallation,
+		type RackModel
+	} from '$lib/rack/rackModel';
+
+	type RackResizeResult = { ok: boolean; message: string };
 	let {
 		device,
+		rack,
 		rackName,
-		onRename
-	}: { device?: RackDevice; rackName?: string; onRename: (name: string) => void } = $props();
+		onRename,
+		onResizeRack,
+		onChangeRackInstallation
+	}: {
+		device?: RackDevice;
+		rack?: RackModel;
+		rackName?: string;
+		onRename: (name: string) => void;
+		onResizeRack: (units: number) => RackResizeResult;
+		onChangeRackInstallation: (installation: RackInstallation) => RackResizeResult;
+	} = $props();
+
+	let rackFeedback = $state<RackResizeResult>();
+
+	$effect(() => {
+		rack?.id;
+		rackFeedback = undefined;
+	});
+
+	function resizeRack(event: Event) {
+		if (!rack) return;
+		const input = event.currentTarget as HTMLInputElement;
+		rackFeedback = onResizeRack(Number(input.value));
+		if (!rackFeedback.ok) input.value = String(rack.units);
+	}
+
+	function changeRackInstallation(event: Event) {
+		if (!rack) return;
+		const select = event.currentTarget as HTMLSelectElement;
+		rackFeedback = onChangeRackInstallation(select.value as RackInstallation);
+		if (!rackFeedback.ok) select.value = rack.installation;
+	}
 </script>
 
 <aside class="properties" aria-label="Properties panel">
@@ -44,6 +82,60 @@
 			</div>
 		</div>
 		<div class="selection-status"><span></span> Positioned in rack</div>
+	{:else if rack}
+		<div class="selection-summary rack-summary">
+			<div class="rack-icon" aria-hidden="true"><span></span><span></span><span></span></div>
+			<div><strong>{rack.name}</strong><small>Selected rack cabinet</small></div>
+		</div>
+		<div class="form-section">
+			<label for="rack-name">Name</label>
+			<input
+				id="rack-name"
+				value={rack.name}
+				maxlength="60"
+				onchange={(event) => onRename(event.currentTarget.value.trim() || rack.name)}
+			/>
+			<label for="rack-height">Rack height</label>
+			<div class="unit-input">
+				<input
+					id="rack-height"
+					type="number"
+					min="1"
+					max={MAX_RACK_UNITS}
+					step="1"
+					value={rack.units}
+					onchange={resizeRack}
+				/>
+				<span>U</span>
+			</div>
+			<p class="field-help">
+				The rack grows and shrinks from the top. Its bottom and installed equipment stay fixed.
+			</p>
+			<label for="rack-installation">Installation</label>
+			<select id="rack-installation" value={rack.installation} onchange={changeRackInstallation}>
+				<option value="wall-mount">Wall mount</option>
+				<option value="floor-stand">Floor stand</option>
+			</select>
+			<p class="field-help">
+				{rack.installation === 'floor-stand'
+					? 'Floor-standing racks include support legs.'
+					: 'Wall-mounted racks are shown without support legs.'}
+			</p>
+		</div>
+		{#if rackFeedback}
+			<div
+				class:feedback-success={rackFeedback.ok}
+				class:feedback-error={!rackFeedback.ok}
+				class="resize-feedback"
+				role="status"
+				aria-live="polite"
+			>
+				<span aria-hidden="true">{rackFeedback.ok ? '✓' : '!'}</span>
+				{rackFeedback.message}
+			</div>
+		{:else}
+			<div class="selection-status"><span></span> Ready to resize</div>
+		{/if}
 	{:else}
 		<div class="empty-state">
 			<div class="empty-icon" aria-hidden="true">⌁</div>
@@ -130,6 +222,25 @@
 		border-radius: 50%;
 		background: #22c55e;
 	}
+	.rack-summary {
+		border-color: #cbd5e1;
+		background: #f8fafc;
+	}
+	.rack-icon {
+		display: grid;
+		gap: 4px;
+		width: 32px;
+		height: 38px;
+		padding: 5px;
+		border: 2px solid #64748b;
+		border-radius: 3px;
+		background: #fff;
+	}
+	.rack-icon span {
+		border: 1px solid #94a3b8;
+		border-radius: 1px;
+		background: #e2e8f0;
+	}
 	.form-section {
 		display: grid;
 		gap: 7px;
@@ -143,7 +254,8 @@
 		font-size: 11px;
 		font-weight: 700;
 	}
-	input {
+	input,
+	select {
 		width: 100%;
 		padding: 9px 10px;
 		border: 1px solid #d3dbe6;
@@ -157,9 +269,32 @@
 		color: #667085;
 		background: #f8fafc;
 	}
-	input:focus-visible {
+	input:focus-visible,
+	select:focus-visible {
 		border-color: #60a5fa;
 		outline: 2px solid #dbeafe;
+	}
+	.unit-input {
+		position: relative;
+	}
+	.unit-input input {
+		padding-right: 32px;
+	}
+	.unit-input span {
+		position: absolute;
+		right: 11px;
+		top: 50%;
+		color: #64748b;
+		font-size: 12px;
+		font-weight: 700;
+		pointer-events: none;
+		transform: translateY(-50%);
+	}
+	.field-help {
+		margin-top: 3px;
+		color: #7b8798;
+		font-size: 10px;
+		line-height: 1.45;
 	}
 	.field-row {
 		display: grid;
@@ -184,6 +319,42 @@
 		border-radius: 50%;
 		background: #22c55e;
 		box-shadow: 0 0 0 3px #dcfce7;
+	}
+	.resize-feedback {
+		display: grid;
+		grid-template-columns: 20px 1fr;
+		gap: 8px;
+		align-items: start;
+		margin-top: 18px;
+		padding: 10px;
+		border: 1px solid;
+		border-radius: 7px;
+		font-size: 11px;
+		line-height: 1.45;
+	}
+	.resize-feedback span {
+		display: grid;
+		place-items: center;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		font-weight: 800;
+	}
+	.feedback-success {
+		border-color: #bbf7d0;
+		color: #166534;
+		background: #f0fdf4;
+	}
+	.feedback-success span {
+		background: #dcfce7;
+	}
+	.feedback-error {
+		border-color: #fecaca;
+		color: #991b1b;
+		background: #fef2f2;
+	}
+	.feedback-error span {
+		background: #fee2e2;
 	}
 	.empty-state {
 		display: grid;

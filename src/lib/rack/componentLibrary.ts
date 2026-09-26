@@ -5,6 +5,7 @@ export type LibraryComponent =
 			name: string;
 			detail: string;
 			units: number;
+			installation: 'wall-mount' | 'floor-stand';
 	  }
 	| {
 			id: string;
@@ -37,13 +38,17 @@ export const componentSections: LibrarySection[] = [
 	{
 		id: 'racks',
 		name: 'Racks',
-		items: [42, 15, 9].map((units) => ({
-			id: `rack-${units}u`,
-			kind: 'rack' as const,
-			name: `${units}U Rack`,
-			detail: `Cabinet · ${units}U`,
-			units
-		}))
+		items: [42, 15, 9].map((units) => {
+			const installation = units === 42 ? ('floor-stand' as const) : ('wall-mount' as const);
+			return {
+				id: `rack-${units}u`,
+				kind: 'rack' as const,
+				name: `${units}U Rack`,
+				detail: `${installation === 'floor-stand' ? 'Floor stand' : 'Wall mount'} · ${units}U`,
+				units,
+				installation
+			};
+		})
 	},
 	{
 		id: 'switches',

@@ -8,6 +8,7 @@
 	import { rackPosition, rackUnitsToPx, rackWidth, yToStartU } from './rackGeometry';
 	import type { RackModel } from './rackModel';
 	import { rackCabinetBounds, rackCabinetsOverlap } from './rackPlacement';
+	import { loadServerFaceImages } from './serverFaceAssets';
 
 	let {
 		racks,
@@ -42,7 +43,9 @@
 	let status = $state('Drag a rack from the library to begin.');
 	let refresh: (() => void) | undefined;
 	let fit: (() => void) | undefined;
-	let layoutSignature = $derived(racks.map((rack) => `${rack.id}:${rack.units}`).join('|'));
+	// Adding or removing a rack may need a fresh overview. Property changes must
+	// preserve the user's current pan and zoom.
+	let rackSetSignature = $derived(racks.map((rack) => rack.id).join('|'));
 
 	$effect(() => {
 		racks;
@@ -50,7 +53,7 @@
 		refresh?.();
 	});
 	$effect(() => {
-		layoutSignature;
+		rackSetSignature;
 		untrack(() => fit?.());
 	});
 
@@ -59,12 +62,21 @@
 		return { x: rack.x ?? fallback.x, y: rack.y ?? fallback.y };
 	}
 
-	function overlapsRack(rackId: string | undefined, units: number, x: number, y: number) {
-		const candidate = rackCabinetBounds(units, x, y);
+	function overlapsRack(
+		rackId: string | undefined,
+		units: number,
+		installation: 'wall-mount' | 'floor-stand',
+		x: number,
+		y: number
+	) {
+		const candidate = rackCabinetBounds(units, x, y, installation);
 		return racks.some((rack, index) => {
 			if (rack.id === rackId) return false;
 			const position = rackCoordinates(rack, index);
-			return rackCabinetsOverlap(candidate, rackCabinetBounds(rack.units, position.x, position.y));
+			return rackCabinetsOverlap(
+				candidate,
+				rackCabinetBounds(rack.units, position.x, position.y, rack.installation)
+			);
 		});
 	}
 
@@ -95,7 +107,7 @@
 			const sideWidth = rackCabinetSideWidth(component.units);
 			const x = Math.max(sideWidth + 16, point.x - rackWidth / 2);
 			const y = Math.max(48, point.y - 28);
-			if (overlapsRack(undefined, component.units, x, y)) {
+			if (overlapsRack(undefined, component.units, component.installation, x, y)) {
 				status = 'Rack cannot overlap another rack.';
 				return;
 			}
@@ -134,13 +146,14 @@
 
 		async function initialize() {
 			try {
-				const [module] = await Promise.all([
+				const [module, , serverFaceImages] = await Promise.all([
 					import('konva'),
 					new Promise<void>((resolve, reject) => {
 						image.onload = () => resolve();
 						image.onerror = () => reject(new Error('Unable to load rack rails.'));
 						image.src = railUrl;
-					})
+					}),
+					loadServerFaceImages()
 				]);
 				if (disposed) return;
 				const Konva = module.default;
@@ -162,12 +175,14 @@
 								rack,
 								...rackCoordinates(rack, index),
 								railImage: image,
+								serverFaceImages,
 								selectedId,
 								onSelect: (id) => onSelect(rack.id, id),
+								onRackSelect: () => onSelect(rack.id, rack.id),
 								onContextMenu: (id, contextEvent) => onContextMenu(rack.id, id, contextEvent),
 								onMove: (id, u) => onMove(rack.id, id, u),
 								onRackMove: (x, y) => onRackMove(rack.id, x, y),
-								canMoveRack: (x, y) => !overlapsRack(rack.id, rack.units, x, y),
+								canMoveRack: (x, y) => !overlapsRack(rack.id, rack.units, rack.installation, x, y),
 								onStatus: (text) => (status = text)
 							}).group
 						)
@@ -182,7 +197,7 @@
 					}
 					const bounds = racks.map((rack, index) => {
 						const position = rackCoordinates(rack, index);
-						return rackCabinetBounds(rack.units, position.x, position.y);
+						return rackCabinetBounds(rack.units, position.x, position.y, rack.installation);
 					});
 					const minX = Math.min(...bounds.map((box) => box.left)) - 32;
 					const maxX = Math.max(...bounds.map((box) => box.right)) + 32;

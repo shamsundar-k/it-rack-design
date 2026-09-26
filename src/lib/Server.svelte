@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import type KonvaNamespace from 'konva';
 	import { createServerArtwork } from './rack/serverArtwork';
+	import { loadServerFaceImage } from './rack/serverFaceAssets';
 
 	import { MOUNTING_WIDTH_PX, rackUnitsToPx } from './rack/rackGeometry';
 	const BASE_SERVER_RACK_UNITS = 2;
@@ -27,8 +28,12 @@
 		let renderedRackUnits: number | undefined;
 
 		async function createServer() {
-			const Konva = (await import('konva')).default;
+			const [module, faceImage] = await Promise.all([
+				import('konva'),
+				loadServerFaceImage(rackUnits)
+			]);
 			if (disposed) return;
+			const Konva = module.default;
 
 			const width = MOUNTING_WIDTH_PX;
 			const serverHeight = serverHeightPx;
@@ -40,7 +45,7 @@
 			});
 			const layer = new Konva.Layer();
 			stage.add(layer);
-			server = createServerArtwork(Konva, rackUnits);
+			server = createServerArtwork(Konva, rackUnits, faceImage);
 			layer.add(server);
 
 			function fitServer() {

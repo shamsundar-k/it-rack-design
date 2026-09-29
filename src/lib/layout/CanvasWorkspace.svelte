@@ -2,6 +2,7 @@
 	import RackCanvas from '$lib/rack/RackCanvas.svelte';
 	import type { LibraryComponent } from '$lib/rack/componentLibrary';
 	import type { RackModel } from '$lib/rack/rackModel';
+	import type { ServerView } from '$lib/rack/serverFaceAssets';
 
 	let {
 		racks,
@@ -30,6 +31,8 @@
 			startU: number
 		) => boolean;
 	} = $props();
+
+	let view: ServerView = $state('front');
 </script>
 
 <section class="workspace" aria-label="Rack design canvas">
@@ -38,11 +41,17 @@
 			<strong>Rack floor</strong>
 			<span
 				>{racks.length
-					? `${racks.length} rack${racks.length === 1 ? '' : 's'} · Front view`
+					? `${racks.length} rack${racks.length === 1 ? '' : 's'} · ${view === 'front' ? 'Front' : 'Back'} view`
 					: 'Empty canvas'}</span
 			>
 		</div>
-		<div class="canvas-help"><span aria-hidden="true">↕</span> Drag components to place</div>
+		<div class="workspace-actions">
+			<div class="view-switch" aria-label="Rack view">
+				<button class:active={view === 'front'} onclick={() => (view = 'front')}>Front</button>
+				<button class:active={view === 'back'} onclick={() => (view = 'back')}>Back</button>
+			</div>
+			<div class="canvas-help"><span aria-hidden="true">↕</span> Drag components to place</div>
+		</div>
 	</div>
 	<div class="canvas-shell">
 		<RackCanvas
@@ -54,6 +63,7 @@
 			{onRackMove}
 			{onAddRack}
 			{onAddDevice}
+			{view}
 		/>
 		{#if racks.length === 0}
 			<div class="empty-canvas" aria-hidden="true">
@@ -94,6 +104,36 @@
 	.canvas-help {
 		color: #7b8798;
 		font-size: 11px;
+	}
+	.workspace-actions,
+	.view-switch {
+		display: flex;
+		align-items: center;
+	}
+	.workspace-actions {
+		gap: 14px;
+	}
+	.view-switch {
+		gap: 2px;
+		padding: 2px;
+		border: 1px solid #dce3ec;
+		border-radius: 7px;
+		background: #f8fafc;
+	}
+	.view-switch button {
+		padding: 4px 9px;
+		border: 0;
+		border-radius: 5px;
+		color: #667085;
+		background: transparent;
+		font: inherit;
+		font-size: 10px;
+		font-weight: 700;
+		cursor: pointer;
+	}
+	.view-switch button.active {
+		color: #fff;
+		background: #2563eb;
 	}
 	.canvas-help {
 		display: flex;

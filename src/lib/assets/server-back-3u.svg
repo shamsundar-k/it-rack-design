@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="165.789" viewBox="0 0 600 165.789">
+  <g stroke="#334155" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="1.5" y="1.5" width="597" height="162.789" rx="5" fill="#e8eef5"/>
+    <g fill="#f8fafc">
+      <rect x="15" y="14" width="125" height="64" rx="4"/><rect x="15" y="88" width="125" height="64" rx="4"/>
+      <rect x="151" y="14" width="125" height="138" rx="4"/>
+    </g>
+    <g fill="none" stroke-width="1.4">
+      <circle cx="77.5" cy="46" r="24"/><path d="M77.5 22v48M53.5 46h48M60.5 29l34 34M94.5 29l-34 34"/>
+      <circle cx="77.5" cy="120" r="24"/><path d="M77.5 96v48M53.5 120h48M60.5 103l34 34M94.5 103l-34 34"/>
+      <circle cx="213.5" cy="83" r="43"/><path d="M213.5 40v86M170.5 83h86M183 52.5l61 61M244 52.5l-61 61"/>
+    </g>
+    <g fill="#f8fafc"><rect x="291" y="14" width="105" height="138" rx="4"/><rect x="408" y="14" width="176" height="138" rx="4"/></g>
+    <path d="M305 31h77v48h-77zM317 41h53v28h-53zM305 91h77v44h-77zM317 101h53v24h-53z" fill="none"/>
+    <circle cx="383" cy="23" r="3" fill="#22c55e" stroke="none"/>
+    <g fill="#0f172a">
+      <rect x="423" y="34" width="48" height="30" rx="2"/><rect x="480" y="34" width="48" height="30" rx="2"/>
+      <rect x="537" y="36" width="38" height="26" rx="2"/><path d="M423 93h50l-6 27h-38z"/>
+      <rect x="486" y="89" width="42" height="14" rx="2"/><rect x="486" y="108" width="42" height="14" rx="2"/>
+    </g>
+    <g fill="#cbd5e1" stroke="none">
+      <rect x="430" y="40" width="34" height="17" rx="1"/><rect x="487" y="40" width="34" height="17" rx="1"/>
+      <rect x="543" y="42" width="26" height="14" rx="1"/><rect x="492" y="94" width="30" height="5" rx="1"/><rect x="492" y="113" width="30" height="5" rx="1"/>
+    </g>
+    <g fill="#64748b" stroke="none"><circle cx="435" cy="106" r="1.7"/><circle cx="444" cy="102" r="1.7"/><circle cx="453" cy="106" r="1.7"/><circle cx="462" cy="102" r="1.7"/></g>
+    <g fill="#475569" stroke="none" font-family="Arial, sans-serif" font-size="9" font-weight="700">
+      <text x="433" y="28">RJ45 1</text><text x="490" y="28">RJ45 2</text><text x="540" y="28">HDMI</text>
+      <text x="431" y="87">VGA</text><text x="535" y="102">USB</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="221.053" viewBox="0 0 600 221.053">
+  <g stroke="#334155" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="1.5" y="1.5" width="597" height="218.053" rx="5" fill="#e8eef5"/>
+    <g fill="#f8fafc">
+      <rect x="15" y="15" width="128" height="89" rx="4"/><rect x="15" y="117" width="128" height="89" rx="4"/>
+      <rect x="155" y="15" width="128" height="89" rx="4"/><rect x="155" y="117" width="128" height="89" rx="4"/>
+    </g>
+    <g fill="none" stroke-width="1.5">
+      <circle cx="79" cy="59.5" r="34"/><path d="M79 25.5v68M45 59.5h68M55 35.5l48 48M103 35.5l-48 48"/>
+      <circle cx="79" cy="161.5" r="34"/><path d="M79 127.5v68M45 161.5h68M55 137.5l48 48M103 137.5l-48 48"/>
+      <circle cx="219" cy="59.5" r="34"/><path d="M219 25.5v68M185 59.5h68M195 35.5l48 48M243 35.5l-48 48"/>
+      <circle cx="219" cy="161.5" r="34"/><path d="M219 127.5v68M185 161.5h68M195 137.5l48 48M243 137.5l-48 48"/>
+    </g>
+    <g fill="#f8fafc"><rect x="296" y="15" width="106" height="191" rx="4"/><rect x="414" y="15" width="170" height="191" rx="4"/></g>
+    <path d="M310 35h78v66h-78zM321 48h56v40h-56zM310 121h78v66h-78zM321 134h56v40h-56z" fill="none"/>
+    <circle cx="389" cy="25" r="3" fill="#22c55e" stroke="none"/>
+    <g fill="#0f172a">
+      <rect x="430" y="46" width="50" height="32" rx="2"/><rect x="490" y="46" width="50" height="32" rx="2"/>
+      <rect x="430" y="112" width="50" height="28" rx="2"/><path d="M492 112h53l-6 28h-41z"/>
+      <rect x="430" y="161" width="46" height="15" rx="2"/><rect x="430" y="182" width="46" height="15" rx="2"/>
+    </g>
+    <g fill="#cbd5e1" stroke="none">
+      <rect x="437" y="52" width="36" height="19" rx="1"/><rect x="497" y="52" width="36" height="19" rx="1"/>
+      <rect x="437" y="118" width="36" height="16" rx="1"/><rect x="437" y="166" width="32" height="5" rx="1"/><rect x="437" y="187" width="32" height="5" rx="1"/>
+    </g>
+    <g fill="#64748b" stroke="none"><circle cx="505" cy="126" r="1.8"/><circle cx="515" cy="122" r="1.8"/><circle cx="525" cy="126" r="1.8"/><circle cx="535" cy="122" r="1.8"/></g>
+    <g fill="#475569" stroke="none" font-family="Arial, sans-serif" font-size="10" font-weight="700">
+      <text x="441" y="38">RJ45 1</text><text x="501" y="38">RJ45 2</text><text x="441" y="104">HDMI</text>
+      <text x="505" y="104">VGA</text><text x="486" y="181">USB</text>
+    </g>
+  </g>
+</svg>

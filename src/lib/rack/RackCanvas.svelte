@@ -8,7 +8,7 @@
 	import { rackPosition, rackUnitsToPx, rackWidth, yToStartU } from './rackGeometry';
 	import type { RackModel } from './rackModel';
 	import { rackCabinetBounds, rackCabinetsOverlap } from './rackPlacement';
-	import { loadServerFaceImages } from './serverFaceAssets';
+	import { loadServerFaceImages, type ServerView } from './serverFaceAssets';
 
 	let {
 		racks,
@@ -18,7 +18,8 @@
 		onContextMenu,
 		onRackMove,
 		onAddRack,
-		onAddDevice
+		onAddDevice,
+		view
 	}: {
 		racks: RackModel[];
 		selectedId?: string;
@@ -36,6 +37,7 @@
 			component: Extract<LibraryComponent, { kind: 'device' }>,
 			startU: number
 		) => boolean;
+		view: ServerView;
 	} = $props();
 
 	let host: HTMLDivElement;
@@ -50,6 +52,7 @@
 	$effect(() => {
 		racks;
 		selectedId;
+		view;
 		refresh?.();
 	});
 	$effect(() => {
@@ -146,14 +149,15 @@
 
 		async function initialize() {
 			try {
-				const [module, , serverFaceImages] = await Promise.all([
+				const [module, , serverFaceImages, serverBackImages] = await Promise.all([
 					import('konva'),
 					new Promise<void>((resolve, reject) => {
 						image.onload = () => resolve();
 						image.onerror = () => reject(new Error('Unable to load rack rails.'));
 						image.src = railUrl;
 					}),
-					loadServerFaceImages()
+					loadServerFaceImages(),
+					loadServerFaceImages('back')
 				]);
 				if (disposed) return;
 				const Konva = module.default;
@@ -176,6 +180,8 @@
 								...rackCoordinates(rack, index),
 								railImage: image,
 								serverFaceImages,
+								serverBackImages,
+								view,
 								selectedId,
 								onSelect: (id) => onSelect(rack.id, id),
 								onRackSelect: () => onSelect(rack.id, rack.id),

@@ -18,6 +18,7 @@ import {
 	RACK_TOP_COVER_HEIGHT
 } from './rackCabinetArtwork';
 import { createServerArtwork } from './serverArtwork';
+import type { ServerView } from './serverFaceAssets';
 
 export function createRack(
 	Konva: typeof KonvaNamespace,
@@ -27,6 +28,8 @@ export function createRack(
 		y: number;
 		railImage: HTMLImageElement;
 		serverFaceImages: ReadonlyMap<number, HTMLImageElement>;
+		serverBackImages: ReadonlyMap<number, HTMLImageElement>;
+		view: ServerView;
 		selectedId?: string;
 		onSelect: (id: string) => void;
 		onRackSelect: () => void;
@@ -37,7 +40,8 @@ export function createRack(
 		onStatus: (message: string) => void;
 	}
 ) {
-	const { rack, railImage, serverFaceImages, onSelect, onMove, onStatus } = options;
+	const { rack, railImage, serverFaceImages, serverBackImages, onSelect, onMove, onStatus } =
+		options;
 	const group = new Konva.Group({
 		x: options.x,
 		y: options.y,
@@ -230,8 +234,12 @@ export function createRack(
 		const art = createServerArtwork(
 			Konva,
 			device.sizeU,
-			serverFaceImages.get(device.sizeU)!,
-			useLargeServerLabel ? undefined : device.name
+			(options.view === 'back' && (device.category ?? 'server') === 'server'
+				? serverBackImages
+				: serverFaceImages
+			).get(device.sizeU)!,
+			useLargeServerLabel ? undefined : device.name,
+			options.view !== 'back' || (device.category ?? 'server') !== 'server'
 		);
 		art.y(-4);
 		// Keep the original artwork inside its exact U allocation.
@@ -250,7 +258,10 @@ export function createRack(
 			fill: 'rgba(0,0,0,0)'
 		});
 		node.add(clipped);
-		if (useLargeServerLabel) {
+		if (
+			useLargeServerLabel &&
+			(options.view !== 'back' || (device.category ?? 'server') !== 'server')
+		) {
 			const fontSize = Math.min(rackUnitsToPx(1) * 0.55, 12 * labelScale);
 			const labelHeight = fontSize + 8;
 			const labelY = Math.max(4, (bounds.height - labelHeight) / 2);

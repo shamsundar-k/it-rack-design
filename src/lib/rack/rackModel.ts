@@ -1,3 +1,5 @@
+import type { ServerView } from './serverFaceAssets';
+
 export interface RackDevice {
 	id: string;
 	name: string;
@@ -12,6 +14,7 @@ export interface RackModel {
 	name: string;
 	units: number;
 	installation: RackInstallation;
+	view?: ServerView;
 	x?: number;
 	y?: number;
 	devices: RackDevice[];

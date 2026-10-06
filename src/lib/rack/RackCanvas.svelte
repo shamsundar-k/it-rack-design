@@ -8,7 +8,7 @@
 	import { rackPosition, rackUnitsToPx, rackWidth, yToStartU } from './rackGeometry';
 	import type { RackModel } from './rackModel';
 	import { rackCabinetBounds, rackCabinetsOverlap } from './rackPlacement';
-	import { loadServerFaceImages, type ServerView } from './serverFaceAssets';
+	import { loadServerFaceImages } from './serverFaceAssets';
 
 	let {
 		racks,
@@ -18,8 +18,7 @@
 		onContextMenu,
 		onRackMove,
 		onAddRack,
-		onAddDevice,
-		view
+		onAddDevice
 	}: {
 		racks: RackModel[];
 		selectedId?: string;
@@ -37,7 +36,6 @@
 			component: Extract<LibraryComponent, { kind: 'device' }>,
 			startU: number
 		) => boolean;
-		view: ServerView;
 	} = $props();
 
 	let host: HTMLDivElement;
@@ -52,7 +50,6 @@
 	$effect(() => {
 		racks;
 		selectedId;
-		view;
 		refresh?.();
 	});
 	$effect(() => {
@@ -181,7 +178,7 @@
 								railImage: image,
 								serverFaceImages,
 								serverBackImages,
-								view,
+								view: rack.view ?? 'front',
 								selectedId,
 								onSelect: (id) => onSelect(rack.id, id),
 								onRackSelect: () => onSelect(rack.id, rack.id),

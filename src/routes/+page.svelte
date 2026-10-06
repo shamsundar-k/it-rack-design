@@ -17,6 +17,7 @@
 		type RackModel
 	} from '$lib/rack/rackModel';
 	import { rackCabinetBounds, rackCabinetsOverlap } from '$lib/rack/rackPlacement';
+	import type { ServerView } from '$lib/rack/serverFaceAssets';
 
 	type RackResizeResult = { ok: boolean; message: string };
 
@@ -159,6 +160,11 @@
 		};
 	}
 
+	function changeRackView(view: ServerView) {
+		if (!selectedRackOnly) return;
+		racks = racks.map((rack) => (rack.id === selectedRackOnly?.id ? { ...rack, view } : rack));
+	}
+
 	function addRack(component: Extract<LibraryComponent, { kind: 'rack' }>, x: number, y: number) {
 		const number = nextRackNumber++;
 		const id = `rack-${number}`;
@@ -169,6 +175,7 @@
 				name: `${component.units}U Rack ${number}`,
 				units: component.units,
 				installation: component.installation,
+				view: 'front',
 				x,
 				y,
 				devices: []
@@ -245,6 +252,7 @@
 			onRename={renameSelected}
 			onResizeRack={resizeSelectedRack}
 			onChangeRackInstallation={changeRackInstallation}
+			onChangeView={changeRackView}
 		/>
 	</div>
 </main>

@@ -5,6 +5,7 @@
 		type RackInstallation,
 		type RackModel
 	} from '$lib/rack/rackModel';
+	import type { ServerView } from '$lib/rack/serverFaceAssets';
 
 	type RackResizeResult = { ok: boolean; message: string };
 	let {
@@ -13,7 +14,8 @@
 		rackName,
 		onRename,
 		onResizeRack,
-		onChangeRackInstallation
+		onChangeRackInstallation,
+		onChangeView
 	}: {
 		device?: RackDevice;
 		rack?: RackModel;
@@ -21,6 +23,7 @@
 		onRename: (name: string) => void;
 		onResizeRack: (units: number) => RackResizeResult;
 		onChangeRackInstallation: (installation: RackInstallation) => RackResizeResult;
+		onChangeView: (view: ServerView) => void;
 	} = $props();
 
 	let rackFeedback = $state<RackResizeResult>();
@@ -88,6 +91,21 @@
 			<div><strong>{rack.name}</strong><small>Selected rack cabinet</small></div>
 		</div>
 		<div class="form-section">
+			<span class="field-label" id="server-view-label">Server view</span>
+			<div class="view-switch" role="group" aria-labelledby="server-view-label">
+				<button
+					type="button"
+					class:active={(rack.view ?? 'front') === 'front'}
+					aria-pressed={(rack.view ?? 'front') === 'front'}
+					onclick={() => onChangeView('front')}>Front</button
+				>
+				<button
+					type="button"
+					class:active={rack.view === 'back'}
+					aria-pressed={rack.view === 'back'}
+					onclick={() => onChangeView('back')}>Back</button
+				>
+			</div>
 			<label for="rack-name">Name</label>
 			<input
 				id="rack-name"
@@ -248,7 +266,8 @@
 		padding-top: 20px;
 		border-top: 1px solid #e7ecf2;
 	}
-	label {
+	label,
+	.field-label {
 		margin-top: 7px;
 		color: #475467;
 		font-size: 11px;
@@ -295,6 +314,34 @@
 		color: #7b8798;
 		font-size: 10px;
 		line-height: 1.45;
+	}
+	.view-switch {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 3px;
+		padding: 3px;
+		border: 1px solid #d3dbe6;
+		border-radius: 7px;
+		background: #f8fafc;
+	}
+	.view-switch button {
+		padding: 7px 10px;
+		border: 0;
+		border-radius: 5px;
+		color: #667085;
+		background: transparent;
+		font: inherit;
+		font-size: 11px;
+		font-weight: 700;
+		cursor: pointer;
+	}
+	.view-switch button.active {
+		color: #fff;
+		background: #2563eb;
+	}
+	.view-switch button:focus-visible {
+		outline: 2px solid #93c5fd;
+		outline-offset: 1px;
 	}
 	.field-row {
 		display: grid;
